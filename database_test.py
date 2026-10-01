@@ -20,7 +20,18 @@ cursor.execute("""
 
 connection.commit()
 
-
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS maintenance(
+maintenance_id INTEGER PRIMARY KEY,
+equipment_id INTEGER,
+date TEXT,
+type_of_maintenance TEXT,
+engineer TEXT,
+time_taken INTEGER,
+description TEXT,
+FOREIGN KEY (equipment_id) REFERENCES equipment(equipment_id))
+""")
+connection.commit()
 # print("Unique serial-number rule created")
 # cursor.execute("""
 #     SELECT serial_number, COUNT(*)
@@ -214,16 +225,60 @@ connection.commit()
 #   else:
 #         print("Choice not valid")
 # search_menu()
-def equipment_report():
-  cursor.execute("SELECT COUNT(*) FROM equipment")
-  total=cursor.fetchone()
-  print("Total equipments:",total[0])
-#def equipment_status_report():
-  cursor.execute("""SELECT LOWER(department),LOWER(status),COUNT(*)
-   FROM equipment
-   GROUP BY LOWER(department),LOWER(status); """)
-  results=cursor.fetchall()
-  for item in results:
-    print(item[0],":" ,item[1],":",item[2])
+# def equipment_report():
+#   cursor.execute("SELECT COUNT(*) FROM equipment")
+#   total=cursor.fetchone()
+#   print("Total equipments:",total[0])
+# #def equipment_status_report():
+#   cursor.execute("""SELECT LOWER(department),LOWER(status),COUNT(*)
+#    FROM equipment
+#    GROUP BY LOWER(department),LOWER(status)
+#    ORDER BY COUNT(*) DESC
+#    """)
+#   results=cursor.fetchall()
+#   for item in results:
+#     print(item[0],":" ,item[1],":",item[2])
 
-equipment_report()
+# equipment_report()
+# def register_maintenance():
+#   equipment_id=input("Equipment_id: ")
+#   date=input("Date: ")
+#   type_of_maintenance=input("Type of maintenance: ")
+#   engineer=input("Engineer: ")
+#   time_taken=input("Time taken: ")
+#   description=input("Description: ")
+#   cursor.execute(""" 
+#       INSERT INTO maintenance (equipment_id,date,type_of_maintenance,engineer,time_taken,description)
+#       VALUES (?, ?, ?, ?, ?, ?)
+#       """,(equipment_id,date,type_of_maintenance,engineer,time_taken,description))
+#   connection.commit()
+# def view_maintenance():
+#    cursor.execute("SELECT maintenance_id,equipment_id,date,type_of_maintenance,engineer,time_taken,description FROM maintenance")
+#    maintenance = cursor.fetchall()
+#    for item in maintenance:
+#         print("maintenance id:", item[0])
+#         print("equipment id:",item[1])
+#         print("date:", item[2])
+#         print("type_of_maintenance:", item[3])
+#         print("engineer:", item[4])
+#         print("time_taken:", item[5])
+#         print("description:",item[6])
+#         print() 
+cursor.execute("""
+SELECT maintenance.equipment_id,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description,equipment.serial_number,equipment.name
+ FROM maintenance
+JOIN equipment
+ON maintenance.equipment_id=equipment.equipment_id""")
+results= cursor.fetchall()
+for item in results:
+ print("equipment_id",item[0])
+ print("date",item[1])
+ print("type_of_maintenance",item[2])
+ print("engineer",item[3])
+ print("time_taken",item[4])
+ print("description",item[5])
+ print("serial_number",item[6])
+ print("name",item[7])
+ print()
+# register_maintenance()
+# view_maintenance()
