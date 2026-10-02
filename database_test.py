@@ -253,32 +253,42 @@ connection.commit()
 #       """,(equipment_id,date,type_of_maintenance,engineer,time_taken,description))
 #   connection.commit()
 # def view_maintenance():
-#    cursor.execute("SELECT maintenance_id,equipment_id,date,type_of_maintenance,engineer,time_taken,description FROM maintenance")
-#    maintenance = cursor.fetchall()
-#    for item in maintenance:
-#         print("maintenance id:", item[0])
-#         print("equipment id:",item[1])
-#         print("date:", item[2])
-#         print("type_of_maintenance:", item[3])
-#         print("engineer:", item[4])
-#         print("time_taken:", item[5])
-#         print("description:",item[6])
-#         print() 
-cursor.execute("""
-SELECT maintenance.equipment_id,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description,equipment.serial_number,equipment.name
- FROM maintenance
-JOIN equipment
-ON maintenance.equipment_id=equipment.equipment_id""")
-results= cursor.fetchall()
-for item in results:
- print("equipment_id",item[0])
- print("date",item[1])
- print("type_of_maintenance",item[2])
- print("engineer",item[3])
- print("time_taken",item[4])
- print("description",item[5])
- print("serial_number",item[6])
- print("name",item[7])
- print()
-# register_maintenance()
-# view_maintenance()
+#   cursor.execute("""
+#   SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
+#   FROM maintenance
+#   JOIN equipment
+#   ON maintenance.equipment_id=equipment.equipment_id""")
+#   results= cursor.fetchall()
+#   for item in results:
+#    print("serial_number:",item[0])
+#    print("name:",item[1])
+#    print("date:",item[2])
+#    print("type_of_maintenance:",item[3])
+#    print("engineer:",item[4])
+#    print("time_taken:",item[5])
+#    print("description:",item[6])
+#    print()
+# # register_maintenance()
+#  view_maintenance()
+def search_maintenance():
+    serial_number=input("Enter serial number: ")
+    cursor.execute("""
+    SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
+    FROM maintenance
+    JOIN equipment
+    ON maintenance.equipment_id=equipment.equipment_id
+    WHERE equipment.serial_number= ?""",(serial_number,))
+    results=cursor.fetchall()
+    if results:
+     for item in results:
+        print("serial number:",item[0])
+        print("Name:",item[1])
+        print("Date:",item[2])
+        print("Type of maintenance:",item[3])
+        print("Engineer:",item[4])
+        print("Time taken:",item[5])
+        print("Description",item[6])
+        print()
+    else:
+        print("Equipment with this serial number does not exixst")
+search_maintenance()
