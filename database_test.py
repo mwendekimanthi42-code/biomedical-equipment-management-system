@@ -1,18 +1,28 @@
 import sqlite3
 connection=sqlite3.connect("hospital.db")
+connection.execute("PRAGMA foreign_keys = ON")#to protect foreign key
 cursor=connection.cursor()
-#print("Database created")
-
+from datetime import datetime
+#from dateutil.relativedelta import relativedelta
+def valid_date():
+    while True:
+      date= input("Enter date (YYYY-MM-DD): ")
+      try:
+        datetime.strptime(date, "%Y-%m-%d")
+        print("Valid date")
+        return date
+      except ValueError:
+        print("Invalid date format. Use YYYY-MM-DD.")
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS equipment (
         equipment_id INTEGER PRIMARY KEY,
-        name TEXT,
+        name TEXT,TEXT,
         department TEXT,
         status TEXT,
         age INTEGER
     )
 """)
-connection.commit()#savesthe changes I just made
+connection.commit()#savesthe changes made
 cursor.execute("""
     CREATE UNIQUE INDEX IF NOT EXISTS idx_equipment_serial_number
     ON equipment(serial_number)
@@ -32,7 +42,6 @@ description TEXT,
 FOREIGN KEY (equipment_id) REFERENCES equipment(equipment_id))
 """)
 connection.commit()
-# print("Unique serial-number rule created")
 # cursor.execute("""
 #     SELECT serial_number, COUNT(*)
 #     FROM equipment
@@ -63,7 +72,7 @@ connection.commit()
 #     print()
 # cursor.execute("""
 #     DELETE FROM equipment
-#     WHERE equipment_id IN (9, 10, 11, 12)
+#     WHERE equip(ment_id IN (9, 10, 11, 12)
 # """)
 
 # connection.commit()
@@ -88,17 +97,26 @@ connection.commit()
 #   except sqlite3.IntegrityError:
 #     print("Serial number already exists")
 # def search_equipment():
-#      name=input("Enter the name of the equipment to search: ")
-#      cursor.execute("SELECT equipment_id,serial_number,name,department,status,age FROM equipment WHERE LOWER(name)=LOWER(?)",(name,))
+#      name=input("Enter the name: ")
+#      status_1=input("Enter the first status to search: ")
+#      status_2=input("Enter the second status to search: ")
+#      cursor.execute("""SELECT equipment_id,serial_number,name,department,status,age 
+#      FROM equipment 
+#      WHERE LOWER(name) LIKE LOWER(?)
+#      AND(LOWER(status)=LOWER(?)
+#      OR LOWER(status)=LOWER(?))""",("%" + name + "%", status_1, status_2))
 #      equipment=cursor.fetchall()
-#      for item in equipment:
-#        print("ID:", item[0])
-#        print("Serial_number",item[1])
-#        print("Name:", item[2])
-#        print("Department:", item[3])
-#        print("Status:", item[4])
-#        print("Age:", item[5])
-#        print()
+#      if equipment:
+#        for item in equipment:
+#          print("ID:", item[0])
+#          print("Serial_number",item[1])
+#          print("Name:", item[2])
+#          print("Department:", item[3])
+#          print("Status:", item[4])
+#          print("Age:", item[5])
+#          print()
+#      else:
+#         print("NO equipment found")
 #status=input("Enter status to search: ")
 # def update_equipment():
 #  number = int(input("How many equipment serial numbers do you want to update? "))
@@ -132,7 +150,7 @@ connection.commit()
 # #delete_equipment()
 #register_equipment()
 # view_equipment()
-# search_equipment()
+#search_equipment()
 # def search_serial_number():
 #     serial_number=input("Enter the serial_number of the equipment to search: ")
 #     cursor.execute("SELECT equipment_id,serial_number,name,department,status,age FROM equipment WHERE LOWER(serial_number)=LOWER(?)",(serial_number,))
@@ -242,16 +260,22 @@ connection.commit()
 # equipment_report()
 # def register_maintenance():
 #   equipment_id=input("Equipment_id: ")
-#   date=input("Date: ")
+#   date=valid_date()
 #   type_of_maintenance=input("Type of maintenance: ")
 #   engineer=input("Engineer: ")
 #   time_taken=input("Time taken: ")
 #   description=input("Description: ")
-#   cursor.execute(""" 
+#   try:
+#    cursor.execute(""" 
 #       INSERT INTO maintenance (equipment_id,date,type_of_maintenance,engineer,time_taken,description)
 #       VALUES (?, ?, ?, ?, ?, ?)
 #       """,(equipment_id,date,type_of_maintenance,engineer,time_taken,description))
-#   connection.commit()
+#    connection.commit()
+#    print("Maintenance registered successfully.")
+
+#   except sqlite3.IntegrityError:#to handle foreign key constraint errors
+#     connection.rollback()
+#     print("Equipment ID does not exist.")
 # def view_maintenance():
 #   cursor.execute("""
 #   SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
@@ -268,27 +292,257 @@ connection.commit()
 #    print("time_taken:",item[5])
 #    print("description:",item[6])
 #    print()
-# # register_maintenance()
+#register_maintenance()
 #  view_maintenance()
-def search_maintenance():
-    serial_number=input("Enter serial number: ")
-    cursor.execute("""
-    SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
-    FROM maintenance
-    JOIN equipment
-    ON maintenance.equipment_id=equipment.equipment_id
-    WHERE equipment.serial_number= ?""",(serial_number,))
-    results=cursor.fetchall()
-    if results:
-     for item in results:
-        print("serial number:",item[0])
-        print("Name:",item[1])
-        print("Date:",item[2])
-        print("Type of maintenance:",item[3])
-        print("Engineer:",item[4])
-        print("Time taken:",item[5])
-        print("Description",item[6])
-        print()
-    else:
-        print("Equipment with this serial number does not exixst")
-search_maintenance()
+# def search_maintenance():
+#     serial_number=input("Enter serial number: ")
+#     cursor.execute("""
+#     SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
+#     FROM maintenance
+#     JOIN equipment
+#     ON maintenance.equipment_id=equipment.equipment_id
+#     WHERE equipment.serial_number= ?""",(serial_number,))
+#     results=cursor.fetchall()
+#     if results:
+#      for item in results:
+#         print("serial number:",item[0])
+#         print("Name:",item[1])
+#         print("Date:",item[2])
+#         print("Type of maintenance:",item[3])
+#         print("Engineer:",item[4])
+#         print("Time taken:",item[5])
+#         print("Description",item[6])
+#         print()
+#     else:
+#         print("Equipment with this serial number does not exixst")
+# search_maintenance()
+# def update_maintenance():
+#   description=input("What is the updated description ")
+#   maintenance_id=input("What is the maintenance id ")
+#   cursor.execute("""
+#   UPDATE maintenance
+#   SET description= ? 
+#   WHERE maintenance_id= ?""",(description,maintenance_id))
+#   connection.commit()
+#   if cursor.rowcount==1:
+#     print("Maintenance updated successfully.")
+#   else:
+#     print("Maintenance record not found")
+# update_maintenance()
+# def delete_maintenance():
+#   maintenance_id=input("What is the maintenance id ")
+#   cursor.execute("""
+#   DELETE FROM maintenance
+#   WHERE maintenance_id= ?""",(maintenance_id,))
+#   connection.commit()
+#   if cursor.rowcount==1:
+#     print("Maintenance deleted successfully.")
+#   else:
+#     print("Maintenance record not found")
+# delete_maintenance()
+# cursor.execute("""
+# UPDATE maintenance
+# SET date=?
+# WHERE date=?
+# """,("2026-01-03","2026-1-3"))
+# connection.commit()
+# def maintenance_history():
+#     cursor.execute( """
+#     SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
+#     FROM maintenance
+#     JOIN equipment
+#     ON maintenance.equipment_id=equipment.equipment_id
+#     ORDER BY maintenance.date DESC
+#     """)
+#     results=cursor.fetchall()
+#     for item in results:
+#         print("Equipment serial number:",item[0])
+#         print("Equipment name:",item[1])
+#         print("Date:",item[2])
+#         print("Type of maintenance:",item[3])
+#         print("Engineer:",item[4])
+#         print("Time taken:",item[5])
+#         print("Description:",item[6])
+#         print( )
+# maintenance_history()
+# def search_maintenance_date():
+#     maintenance_date=valid_date()
+#     cursor.execute("""
+#     SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
+#     FROM maintenance
+#     JOIN equipment
+#     ON maintenance.equipment_id=equipment.equipment_id
+#     WHERE maintenance.date=?
+# """,(maintenance_date,))
+#     results=cursor.fetchall()
+#     if results:
+#       for item in results:
+#         print("Equipment serial number:",item[0])
+#         print("Equipment name:",item[1])
+#         print("Date:",item[2])
+#         print("Type of maintenance:",item[3])
+#         print("Engineer:",item[4])
+#         print("Time taken:",item[5])
+#         print("Description:",item[6])
+#         print( ) 
+#     else:
+#         print("NO maintenace record available for this date")
+# search_maintenance_date()
+# def search_maintenance_type():
+#     type=input("Enter maintenance type: ")
+#     cursor.execute("""
+#     SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
+#     FROM maintenance
+#     JOIN equipment
+#     ON maintenance.equipment_id=equipment.equipment_id
+#     WHERE maintenance.type_of_maintenance=?""",(type,))
+#     results=cursor.fetchall()
+#     if results:
+#       for item in results:
+#         print("Equipment serial number:",item[0])
+#         print("Equipment name:",item[1])
+#         print("Date:",item[2])
+#         print("Type of maintenance:",item[3])
+#         print("Engineer:",item[4])
+#         print("Time taken:",item[5])
+#         print("Description:",item[6])
+#         print( ) 
+#     else:
+#         print("NO maintenace record available for this type")
+# search_maintenance_type()        
+# def search_maintenance_engineer():
+#     engineer=input("Name of engineer:")
+#     cursor.execute("""
+#     SELECT equipment.serial_number,equipment.name,maintenance.date,maintenance.type_of_maintenance,maintenance.engineer,maintenance.time_taken,maintenance.description
+#     FROM maintenance
+#     JOIN equipment
+#     ON maintenance.equipment_id=equipment.equipment_id
+#     WHERE LOWER(maintenance.engineer)=LOWER(?)""",(engineer,))
+#     results=cursor.fetchall()
+#     if results:
+#       for item in results:
+#         print("Equipment serial number:",item[0])
+#         print("Equipment name:",item[1])
+#         print("Date:",item[2])
+#         print("Type of maintenance:",item[3])
+#         print("Engineer:",item[4])
+#         print("Time taken:",item[5])
+#         print("Description:",item[6])
+#         print( ) 
+#     else:
+#         print("NO maintenace record available for this engineer")
+# search_maintenance_engineer()        
+# def maintenance_report():
+#    cursor.execute("""SELECT LOWER(engineer),COUNT(*)
+#    FROM maintenance
+#    GROUP BY LOWER(engineer)
+#    ORDER BY COUNT(*) DESC
+#    """)
+#    results=cursor.fetchall()
+#    for item in results:
+#     print(item[0],":" ,item[1])
+# maintenance_report()
+# def maintenance_type_report():
+#    cursor.execute("""SELECT LOWER(type_of_maintenance),COUNT(*)
+#    FROM maintenance
+#    GROUP BY LOWER(type_of_maintenance)
+#    ORDER BY COUNT(*) DESC
+#    """)
+#    results=cursor.fetchall()
+#    for item in results:
+#     print(item[0],":" ,item[1])
+# maintenance_type_report()
+# def maintenance_report():
+#    cursor.execute("""SELECT equipment.name,equipment.serial_number,COUNT(*)
+#    FROM maintenance
+#    JOIN equipment
+#    ON maintenance.equipment_id=equipment.equipment_id
+#    GROUP BY maintenance.equipment_id
+#    ORDER BY COUNT(*) DESC
+#    """)
+#    results=cursor.fetchall()
+#    for item in results:
+#     print("name:",item[0],"serial number:",item[1],":",item[2],"maintenance records")
+# maintenance_report()
+# def latest_maintenance_report():
+#     cursor.execute("""SELECT equipment.name,equipment.serial_number,maintenance.date,maintenance.type_of_maintenance
+#     FROM maintenance
+#     JOIN equipment
+#     ON maintenance.equipment_id=equipment.equipment_id
+#     WHERE type_of_maintenance=?
+#     GROUP BY maintenance.equipment_id
+#     ORDER BY MAX(maintenance.date)
+#     """,("preventive",))
+#     results=cursor.fetchall()
+#     for item in results:
+#       print("name: ",item[0])
+#       print("serial number: ",item[1])
+#       print("Last preventive maintenance: ",item[2])
+# latest_maintenance_report()
+# def next_maintenance_date():
+#     cursor.execute("""
+#     SELECT MAX(maintenance.date)
+#     FROM maintenance
+#     WHERE type_of_maintenance='preventive'
+#     """)
+#     result=cursor.fetchone()
+#     last_date=datetime.strptime(result[0],"%Y-%m-%d")
+#     month = last_date.month + 6
+#     year = last_date.year
+
+#     if month > 12:
+#       month -= 12
+#       year += 1
+#     next_date = last_date.replace(year=year, month=month)
+#     print("Last preventive maintenance: ",last_date.strftime("%Y-%m-%d"))
+#     print("Next prreventive maintenance: ",next_date.strftime("%Y-%m-%d"))
+# next_maintenance_date()
+
+# cursor.execute("""
+# DELETE FROM equipment
+# WHERE age is NULL""")
+# connection.commit()
+
+# cursor.execute("""
+# SELECT *
+# FROM equipment
+# WHERE age is NULL
+# """)
+# results=cursor.fetchall()
+# for item in results:
+#   print(item)
+def youngest_equipment():
+  cursor.execute("""
+  SELECT MIN(equipment.age) FROM equipment
+  """)
+  result=cursor.fetchone()
+  print("Youngest equipment age: ",result[0],"years")
+youngest_equipment()
+def oldest_equipment():
+  cursor.execute("""
+  SELECT MAX(equipment.age)
+  FROM equipment """)
+  result=cursor.fetchone()
+  print("Oldest equipment age: ",result[0],"years")
+oldest_equipment()
+def avg_equipment_age():
+  cursor.execute("""
+  SELECT AVG(age)
+  FROM equipment""")
+  result=cursor.fetchone()
+  print("Average age: ",result[0],"years")
+avg_equipment_age()
+def total_equipment_age():
+  cursor.execute("""
+  SELECT SUM(age)
+  FROM equipment""")
+  result=cursor.fetchone()
+  print("Total equipment age: ",result[0],"years")
+total_equipment_age()
+def total_equipment():
+  cursor.execute("""
+  SELECT COUNT(*)
+  FROM equipment""")
+  result=cursor.fetchone()
+  print("Total number of equipment: ",result[0])
+total_equipment()
