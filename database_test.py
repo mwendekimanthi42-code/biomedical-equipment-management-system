@@ -511,38 +511,95 @@ connection.commit()
 # results=cursor.fetchall()
 # for item in results:
 #   print(item)
-def youngest_equipment():
+# def youngest_equipment():
+#   cursor.execute("""
+#   SELECT MIN(equipment.age) FROM equipment
+#   """)
+#   result=cursor.fetchone()
+#   print("Youngest equipment age: ",result[0],"years")
+# youngest_equipment()
+# def oldest_equipment():
+#   cursor.execute("""
+#   SELECT MAX(equipment.age)
+#   FROM equipment """)
+#   result=cursor.fetchone()
+#   print("Oldest equipment age: ",result[0],"years")
+# oldest_equipment()
+# def avg_equipment_age():
+#   cursor.execute("""
+#   SELECT AVG(age)
+#   FROM equipment""")
+#   result=cursor.fetchone()
+#   print("Average age: ",result[0],"years")
+# avg_equipment_age()
+# def total_equipment_age():
+#   cursor.execute("""
+#   SELECT SUM(age)
+#   FROM equipment""")
+#   result=cursor.fetchone()
+#   print("Total equipment age: ",result[0],"years")
+# total_equipment_age()
+# def total_equipment():
+#   cursor.execute("""
+#   SELECT COUNT(*)
+#   FROM equipment""")
+#   result=cursor.fetchone()
+#   print("Total number of equipment: ",result[0])
+# total_equipment
+# def equipment_by_department():
+#   cursor.execute("""
+#   SELECT department, COUNT(*)
+#   FROM equipment
+#   GROUP BY department
+#   ORDER BY COUNT(*) DESC""")
+#   result=cursor.fetchall()
+#   for item in result:
+#     print(item[0],":", item[1])
+# equipment_by_department()
+# def equipment_by_department_status():
+#   cursor.execute("""
+#   SELECT department,status,COUNT(*)
+#   FROM equipment
+#   GROUP BY department,status
+#   ORDER BY COUNT(*) DESC""")
+#   result=cursor.fetchall()
+#   for item in result:
+#     print(item[0], ":", item[1], ":", item[2])
+# equipment_by_department_status()
+
+# def maintenance_engineer():
+#   cursor.execute("""
+#   SELECT LOWER(engineer), COUNT(*)
+#   FROM maintenance
+#   GROUP BY LOWER(engineer)
+#   ORDER BY COUNT(*) DESC
+#   """)
+#   result=cursor.fetchall()
+#   for item in result:
+#     print(item[0], ":" ,item[1])
+# maintenance_engineer()
+ 
+# def maintenance_type_records():
+#   cursor.execute("""
+#   SELECT type_of_maintenance, COUNT(*)
+#   FROM maintenance
+#   GROUP BY type_of_maintenance
+#   ORDER BY COUNT(*) DESC""")
+#   result=cursor.fetchall()
+#   for item in result:
+#     print(item[0], ":" ,item[1])
+# maintenance_type_records()
+
+def equipment_maintenance_records():
   cursor.execute("""
-  SELECT MIN(equipment.age) FROM equipment
+  SELECT equipment.name,equipment.serial_number, COUNT(*)
+  FROM maintenance
+  JOIN equipment
+  ON maintenance.equipment_id=equipment.equipment_id
+  GROUP BY equipment.name
+  ORDER BY COUNT(*) DESC
   """)
-  result=cursor.fetchone()
-  print("Youngest equipment age: ",result[0],"years")
-youngest_equipment()
-def oldest_equipment():
-  cursor.execute("""
-  SELECT MAX(equipment.age)
-  FROM equipment """)
-  result=cursor.fetchone()
-  print("Oldest equipment age: ",result[0],"years")
-oldest_equipment()
-def avg_equipment_age():
-  cursor.execute("""
-  SELECT AVG(age)
-  FROM equipment""")
-  result=cursor.fetchone()
-  print("Average age: ",result[0],"years")
-avg_equipment_age()
-def total_equipment_age():
-  cursor.execute("""
-  SELECT SUM(age)
-  FROM equipment""")
-  result=cursor.fetchone()
-  print("Total equipment age: ",result[0],"years")
-total_equipment_age()
-def total_equipment():
-  cursor.execute("""
-  SELECT COUNT(*)
-  FROM equipment""")
-  result=cursor.fetchone()
-  print("Total number of equipment: ",result[0])
-total_equipment()
+  result=cursor.fetchall()
+  for item in result:
+    print(item[0], ":" ,item[1], ":" ,item[2])
+equipment_maintenance_records()
